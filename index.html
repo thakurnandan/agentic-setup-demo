@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup Agent — Interactive Concept</title>
+<style>
+  :root{
+    --amex:#006FCF; --amex-dark:#002663; --ink:#1b2a3a; --muted:#5b6b7c;
+    --bg:#eef2f7; --card:#ffffff; --line:#dbe3ec; --ok:#0f7b3d; --bad:#c0392b;
+    --chip:#e8f1fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);display:flex;flex-direction:column;min-height:100vh}
+  header{background:linear-gradient(135deg,var(--amex-dark),var(--amex));color:#fff;padding:14px 20px;
+         display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  header .logo{font-weight:800;letter-spacing:.5px;font-size:18px}
+  header .tag{font-size:12px;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:20px}
+  header .mock{margin-left:auto;font-size:12px;opacity:.9}
+  .stepper{display:flex;gap:6px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--line);
+           overflow-x:auto;font-size:12px}
+  .stepper .st{padding:6px 12px;border-radius:16px;background:#f1f5f9;color:var(--muted);white-space:nowrap}
+  .stepper .st.done{background:#dff0e4;color:var(--ok)}
+  .stepper .st.now{background:var(--amex);color:#fff;font-weight:600}
+  main{flex:1;display:flex;justify-content:center;padding:18px 14px}
+  .wrap{width:100%;max-width:880px;display:flex;flex-direction:column;gap:12px}
+  .hint{background:#fff8e6;border:1px solid #f0d98c;border-radius:12px;padding:12px 16px;font-size:14px}
+  .hint b{color:#8a6d00}
+  .hint code{background:#f4ecd2;padding:2px 8px;border-radius:6px;font-size:13px}
+  #chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;
+        height:56vh;min-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+  .msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14.5px;line-height:1.5;white-space:pre-wrap}
+  .msg.bot{background:#f2f6fb;border:1px solid var(--line);align-self:flex-start;border-top-left-radius:4px}
+  .msg.user{background:var(--amex);color:#fff;align-self:flex-end;border-top-right-radius:4px}
+  .msg.typing{color:var(--muted);font-style:italic}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+        align-self:flex-start;max-width:92%;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .card h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--amex-dark)}
+  .card table{border-collapse:collapse;width:100%;font-size:13.5px}
+  .card td{padding:4px 8px 4px 0;vertical-align:top}
+  .card td.k{color:var(--muted);white-space:nowrap;width:130px}
+  .pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:12px}
+  .pill.ok{background:#dff0e4;color:var(--ok)} .pill.bad{background:#fbe3e0;color:var(--bad)}
+  .why{background:#f6f9fd;border-left:3px solid var(--amex);padding:8px 12px;margin-top:8px;font-size:13.5px;border-radius:0 8px 8px 0}
+  .accts{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .accts span{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#f1f5f9;
+              padding:4px 9px;border-radius:8px}
+  .accts span.bad{background:#fbe3e0;color:var(--bad);text-decoration:line-through}
+  .callout{border-radius:10px;padding:10px 14px;font-size:13.5px;margin-top:8px}
+  .callout.warn{background:#fdf3e7;border:1px solid #f0c987}
+  .callout.err{background:#fdecea;border:1px solid #f0a9a0}
+  .callout.ok{background:#e9f6ee;border:1px solid #9fd3ae}
+  .callout b{display:block;margin-bottom:4px}
+  details.tmpl{margin-top:8px;font-size:13px}
+  details.tmpl summary{cursor:pointer;color:var(--amex);font-weight:600}
+  details.tmpl ul{columns:2;margin:8px 0;padding-left:20px}
+  .rev{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:13.5px;margin-top:6px}
+  .rev div b{display:block;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .copybtn{font-size:11px;margin-left:8px;cursor:pointer;border:1px solid var(--line);background:#fff;
+           border-radius:6px;padding:2px 8px}
+  #chips{display:flex;flex-wrap:wrap;gap:8px;min-height:10px}
+  #chips button{background:var(--chip);border:1px solid #bcd6f2;color:var(--amex-dark);font-size:13.5px;
+                padding:8px 14px;border-radius:20px;cursor:pointer}
+  #chips button:hover{background:#d8e9fa}
+  #bar{display:flex;gap:8px}
+  #inp{flex:1;padding:12px 16px;border:1px solid var(--line);border-radius:24px;font-size:15px;outline:none}
+  #inp:focus{border-color:var(--amex)}
+  #send{background:var(--amex);color:#fff;border:none;border-radius:24px;padding:0 22px;font-size:15px;
+        cursor:pointer;font-weight:600}
+  #send:hover{background:#005cb0}
+  footer{text-align:center;font-size:12px;color:var(--muted);padding:14px}
+  @media(max-width:640px){.msg{max-width:94%}.rev{grid-template-columns:1fr}details.tmpl ul{columns:1}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Setup&nbsp;Agent</div>
+  <div class="tag">Agentic concept</div>
+  <div class="mock">Concept mock — simulated responses, no real backend</div>
+</header>
+<div class="stepper" id="stepper"></div>
+<main>
+  <div class="wrap">
+    <div class="hint">
+      <b>What to type:</b> start with <code>Create a daily unbilled file for Jboss Uplift</code>,
+      then follow the prompts. You can also type freely at any step — e.g. paste control-account
+      numbers when asked, or type <code>help</code> anytime. Suggestion chips below the chat work too.
+    </div>
+    <div id="chat"></div>
+    <div id="chips"></div>
+    <div id="bar">
+      <input id="inp" placeholder="Type a message…  (try: Create a daily unbilled file for Jboss Uplift)" autocomplete="off">
+      <button id="send">Send</button>
+    </div>
+  </div>
+</main>
+<footer>
+  Concept simulation of an agentic redesign of a 7-screen “Create Setup” wizard ·
+  Steps collapsed: Profile → Template → Reporting Hierarchy → Delivery → File Config → Data Customization → Review
+</footer>
+
+<script>
+const chat=document.getElementById('chat'), chipsEl=document.getElementById('chips'),
+      inp=document.getElementById('inp'), stepper=document.getElementById('stepper');
+const STEPS=['Profile','Template','Accounts','Details','Review','Done'];
+const S={step:'start',profile:null,template:null,accounts:[],rejected:[],hold:null,sort1:'Country',sort2:'Currency',fixTries:0};
+
+const TEMPLATES=[
+ 'BS1000 - vPayment Billing Support File','BT0001 - GL BTA Unbilled','BT0002 - GL BTA Billed',
+ 'GL1022 - Global Monthly Billed','GL1025 - Global Daily Unbilled','GL1026 - Global Daily Unbilled Lite',
+ 'GL1029 - Global Daily Restaurant Data - Dinova','GL1050 - Global Daily Travel Recon - BTA',
+ 'GL1060 - Global Air File','GL1076 - Global LID Recon','GL1080 - Global Hotel Folio',
+ 'GL1088 - Global Meetings Data','GL1090 - Global Property Level Data','GL1205 - Global Cardmember Listing',
+ 'GL1210 - Global Disguised Cardmember Listing','GL1301 - Global Interim Aging - Profile Info',
+ 'GM1022 - Regional Monthly Billed','GM1025 - Regional Daily Unbilled','SF0001 - vPayment Pre-Auth System File',
+ 'TM1025 - TMKD Daily Unbilled','VP1000 - vPayment Reconciliation Data File'];
+
+const SAMPLE_ACCTS=[
+ '67590000000005','67660000000000','67770000000007','2222406343248870','2222990905257050',
+ '3530111333300000','3569999000000000','4217651111111110','2222406343248871','3530111333300001',
+ '67590000000006','67660000000001','67770000000008','4222990905257050','2222990905257051',
+ '3530111333300002','67590000000007','67660000000002',
+ '67590000005','9999000000000000','67590000000005'];
+
+function setStepper(active){
+  stepper.innerHTML=STEPS.map((s,i)=>{
+    const cls=i<active?'st done':(i===active?'st now':'st');
+    return `<div class="${cls}">${i+1}. ${s}</div>`;
+  }).join('');
+}
+function scrollDown(){chat.scrollTop=chat.scrollHeight;}
+function addMsg(text,who='bot'){
+  const d=document.createElement('div');d.className='msg '+who;d.innerHTML=text;chat.appendChild(d);scrollDown();return d;
+}
+function addCard(html){const d=document.createElement('div');d.className='card';d.innerHTML=html;chat.appendChild(d);scrollDown();return d;}
+function chips(list){chipsEl.innerHTML='';list.forEach(c=>{
+  const b=document.createElement('button');b.textContent=c;b.onclick=()=>{chipsEl.innerHTML='';sendUser(c);};chipsEl.appendChild(b);});}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+async function botSay(html,ms=700){
+  const t=addMsg('…','bot typing');await wait(ms);t.remove();addMsg(html,'bot');
+}
+async function botCard(html,ms=700){await wait(ms);addCard(html);}
+function sendUser(text){addMsg(text.replace(/</g,'&lt;'),'user');handle(text);}
+
+function validateAccounts(list){
+  const seen=new Set(),ok=[],bad=[];
+  for(const a of list){
+    if(seen.has(a)){bad.push({n:a,r:'Duplicate entry — already in this batch'});continue;}
+    seen.add(a);
+    if(!/^\d+$/.test(a)){bad.push({n:a,r:'Contains non-numeric characters'});continue;}
+    if(a.length<14||a.length>16){bad.push({n:a,r:`Must be 14–16 digits (this one has ${a.length})`});continue;}
+    if(!/^[2346]/.test(a)){bad.push({n:a,r:'Not mapped to recipient 780943'});continue;}
+    ok.push(a);
+  }
+  return {ok,bad};
+}
+function profileCard(){
+  return `<h4>Profile found</h4><table>
+   <tr><td class="k">Name</td><td><b>jboss Uplift_Client</b></td></tr>
+   <tr><td class="k">Recipient ID</td><td>780943</td></tr>
+   <tr><td class="k">Contact Role</td><td>Client @ Work</td></tr>
+   <tr><td class="k">Status</td><td><span class="pill ok">ACTIVE</span></td></tr>
+   <tr><td class="k">Market</td><td>USA</td></tr>
+   <tr><td class="k">Company</td><td>NONVPAYCB1</td></tr></table>
+   <div class="callout ok"><b>Heads up</b>1 cancelled profile matched your search — I filtered it out automatically. Setup creation is disabled for cancelled profiles.</div>`;
+}
+function templateCard(t){
+  return `<h4>Recommended template</h4>
+   <div style="font-size:16px;font-weight:700">${t}</div>
+   <div class="why"><b>Why this one?</b> Matches “daily” frequency + “unbilled” data. Used by 4 of your 5 recent US setups. Alternative: <b>GL1026 - Global Daily Unbilled Lite</b> — drops detail fields, ~30% smaller files.</div>
+   <details class="tmpl"><summary>Show all ${TEMPLATES.length} templates</summary><ul>${TEMPLATES.map(x=>`<li>${x}</li>`).join('')}</ul></details>`;
+}
+function accountsCard(v){
+  const chipsHtml=v.ok.map(a=>`<span>${a}</span>`).join('')+v.bad.map(b=>`<span class="bad">${b.n}</span>`).join('');
+  let h=`<h4>Control accounts validated</h4>
+   <div><span class="pill ok">${v.ok.length} added</span> <span class="pill bad">${v.bad.length} rejected</span></div>
+   <div class="accts">${chipsHtml}</div>`;
+  if(v.bad.length){
+    h+=`<div class="callout err"><b>${v.bad.length} account(s) were not added</b>`+
+       v.bad.map(b=>`• <b>${b.n}</b> — ${b.r}`).join('<br>')+`</div>`;
+  }
+  return h;
+}
+function reviewCard(){
+  const hold=S.hold?`${S.hold}`:'No hold';
+  return `<h4>Review your setup</h4><div class="rev">
+   <div><b>Profile</b>jboss Uplift_Client · 780943</div>
+   <div><b>Template</b>${S.template}</div>
+   <div><b>Reporting Group ID</b>11111</div>
+   <div><b>Company Name</b>Proxy &amp; Company (auto)</div>
+   <div><b>Control Accounts</b>${S.accounts.length} added${S.rejected.length?` · ${S.rejected.length} skipped`:''}</div>
+   <div><b>CM Masking</b>CM # Fully Masked</div>
+   <div><b>File Format</b>ASCII</div>
+   <div><b>Delivery</b>SFT → Concur</div>
+   <div><b>Real-Time Expense</b>No</div>
+   <div><b>Hold</b>${hold}</div>
+   <div><b>Frequency</b>Daily · 10/01/2026 → 12/31/9999</div>
+   <div><b>ISO Code</b>Numeric</div>
+   <div><b>Data Readiness</b>Consolidate by Process Date</div>
+   <div><b>Sorting</b>${S.sort1} → ${S.sort2}</div>
+   <div><b>Compression</b>None</div>
+   <div><b>Pre-Auth / Scrubbed</b>No / No</div></div>
+   <div class="callout ok" style="margin-top:10px"><b>Ready</b>Everything above was filled from your messages, your profile, and your last setup. Nothing here goes live until you hit Submit.</div>`;
+}
+function successCard(){
+  const g1='R661122.AMEX.R1109083.GL1025.099',g2='R661122.AMEX.R1109083.GL1025.098',
+        c1='R661122_8001109083_GL1025_099_DDATETEST1M68_6SFQ5.pgp',c2='R661122_8001109083_GL1025_098_DDATETEST1M68_6SFQ5.pgp';
+  const cp=t=>` <button class="copybtn" onclick="navigator.clipboard.writeText('${t}')">copy</button>`;
+  return `<h4 style="color:var(--ok)">✓ Setup created successfully</h4><table>
+   <tr><td class="k">Recipient ID</td><td>780943</td></tr>
+   <tr><td class="k">Profile</td><td>jboss Uplift_Client</td></tr>
+   <tr><td class="k">Template</td><td>${S.template}</td></tr>
+   <tr><td class="k">Report Version</td><td>99, 98</td></tr></table>
+   <div style="margin-top:8px;font-size:13px"><b>GDFS files</b><br>
+   <span style="font-family:monospace">${g1}</span>${cp(g1)}<br>
+   <span style="font-family:monospace">${g2}</span>${cp(g2)}</div>
+   <div style="margin-top:6px;font-size:13px"><b>Concur files</b><br>
+   <span style="font-family:monospace">${c1}</span>${cp(c1)}<br>
+   <span style="font-family:monospace">${c2}</span>${cp(c2)}</div>
+   <div class="callout ok"><b>What happens next</b>Files generate daily and land via SFT for Concur.${S.hold?' Delivery is on hold until '+S.hold.split('→')[1].trim()+'.':''} Your first file arrives the next business day after the start date.</div>`;
+}
+
+async function handle(raw){
+  const t=raw.toLowerCase().trim();
+  if(/^(help|what can you do)/.test(t)){
+    await botSay(`I can walk you through a full data-file setup in plain words:<br>
+     • Find your client profile (no ID codes needed)<br>
+     • Recommend the right file template and explain why<br>
+     • Validate control accounts with reasons, not just errors<br>
+     • Fill delivery, file &amp; data options from your profile and past setups<br>
+     • Show a review card — nothing submits until you say so<br><br>
+     Try: <b>Create a daily unbilled file for Jboss Uplift</b>`);
+    chips(['Create a daily unbilled file for Jboss Uplift']);return;
+  }
+  switch(S.step){
+    case 'start': case 'intent': {
+      if(/uplift|jboss|unbilled|daily/.test(t)){
+        S.step='profile';setStepper(0);S.profile={name:'jboss Uplift_Client',rid:'780943'};
+        await botSay('On it — looking up the client profile…');
+        await botCard(profileCard());
+        await botSay('Is this the right client?');
+        chips(['Yes, that\u2019s the one','Try a different ID']);return;
+      }
+      if(/monthly billed/.test(t)){
+        S.step='profile';setStepper(0);
+        await botSay('Got it — monthly billed. Which client is this for? (Try <b>Jboss Uplift</b> or recipient ID <b>780943</b>)');return;
+      }
+      await botSay(`I didn't quite catch that. Tell me what data file you need in plain words — for example:<br><b>Create a daily unbilled file for Jboss Uplift</b>`);
+      chips(['Create a daily unbilled file for Jboss Uplift']);return;
+    }
+    case 'profile': {
+      if(/yes|that.s the one|correct|780943/.test(t)){
+        S.step='template';setStepper(1);S.template='GL1025 - Global Daily Unbilled';
+        await botSay('Profile locked in. Now the file template — here\u2019s my recommendation:');
+        await botCard(templateCard(S.template));
+        chips(['Use GL1025','Tell me about GL1026','Show all templates']);return;
+      }
+      if(/different|901256/.test(t)){
+        await botCard(`<h4>Profile lookup</h4><table>
+         <tr><td class="k">Name</td><td><b>jboss Uplift_Client</b></td></tr>
+         <tr><td class="k">Recipient ID</td><td>901256</td></tr>
+         <tr><td class="k">Status</td><td><span class="pill bad">CANCELLED</span></td></tr></table>
+         <div class="callout warn"><b>Can't use this one</b>Setup creation is disabled for cancelled profiles. The active profile for this client is <b>780943</b>.</div>`);
+        chips(['Use the active one (780943)']);S.step='profile_alt';return;
+      }
+      await botSay('Hmm — try the client name (<b>Jboss Uplift</b>) or recipient ID (<b>780943</b>).');return;
+    }
+    case 'profile_alt': {
+      S.step='template';setStepper(1);S.template='GL1025 - Global Daily Unbilled';S.profile={name:'jboss Uplift_Client',rid:'780943'};
+      await botSay('Switched to the active profile (780943). Now the file template:');
+      await botCard(templateCard(S.template));
+      chips(['Use GL1025','Tell me about GL1026','Show all templates']);return;
+    }
+    case 'template': {
+      if(/1026|lite/.test(t)&&!/1025/.test(t)){
+        await botSay(`<b>GL1026 - Global Daily Unbilled Lite</b>: same daily unbilled data as GL1025 but drops extended detail fields (full merchant descriptors, auth details). Files run ~30% smaller — good if Concur only needs core reconciliation fields. Stick with GL1025 if downstream reporting uses the detail columns.`);
+        chips(['Use GL1026','Use GL1025']);return;
+      }
+      if(/all templates|show all/.test(t)){
+        await botCard(`<h4>All ${TEMPLATES.length} templates</h4><div class="accts">${TEMPLATES.map(x=>`<span>${x}</span>`).join('')}</div>
+        <div class="why">My pick for you is still <b>GL1025</b> — tell me the template code if you want a different one, e.g. <b>GL1022</b>.</div>`);
+        chips(['Use GL1025']);return;
+      }
+      const m=t.match(/(bs1000|bt0001|bt0002|gl\d+|gm\d+|sf0001|tm1025|vp1000)/i);
+      if(m){const code=m[1].toUpperCase();const full=TEMPLATES.find(x=>x.startsWith(code));
+        if(full){S.template=full;S.step='accounts';setStepper(2);
+          await botSay(`Template set: <b>${full}</b>.`);
+          await askAccounts();return;}}
+      if(/use gl1025|1025|^use$|yes/.test(t)){S.step='accounts';setStepper(2);
+        await botSay(`Template set: <b>${S.template}</b>.`);await askAccounts();return;}
+      await botSay('Tell me which template to use — <b>Use GL1025</b>, or a code like <b>GL1022</b>.');
+      chips(['Use GL1025','Show all templates']);return;
+    }
+    case 'accounts': {
+      let list=[];
+      if(/sample/.test(t)){list=SAMPLE_ACCTS.slice();}
+      else{const found=raw.match(/\d{5,}/g);if(found)list=found;}
+      if(!list.length){
+        await botSay('I didn\u2019t find any account numbers in that. Paste the numbers (any format — I\u2019ll extract them), or use the sample batch.');
+        chips(['Use sample batch (21)']);return;
+      }
+      const v=validateAccounts(list);S.accounts=v.ok;S.rejected=v.bad;
+      await botCard(accountsCard(v));
+      if(v.bad.length&&S.fixTries<1){
+        await botSay('Want to fix the rejected ones, or skip them and continue?');
+        chips(['Skip them and continue','Let me fix them']);S.step='accounts_fix';return;
+      }
+      S.step='details';setStepper(3);await askDetails();return;
+    }
+    case 'accounts_fix': {
+      if(/skip/.test(t)){S.step='details';setStepper(3);
+        await botSay(`Skipped ${S.rejected.length} — continuing with ${S.accounts.length} accounts.`);await askDetails();return;}
+      S.fixTries++;
+      const found=raw.match(/\d{5,}/g)||[];
+      if(!found.length){await botSay('Paste the corrected numbers and I\u2019ll re-validate.');return;}
+      const v=validateAccounts(found);S.accounts=S.accounts.concat(v.ok);
+      await botCard(accountsCard({ok:v.ok,bad:v.bad}));
+      S.step='details';setStepper(3);await askDetails();return;
+    }
+    case 'details': {
+      if(/hold/.test(t)){S.hold='10/01/2026 → 10/15/2026';S.step='review';setStepper(4);
+        await botSay('Hold set: <b>10/01/2026 → 10/15/2026</b>. Delivery pauses during the hold, then resumes automatically.');
+        await showReview();return;}
+      if(/sort/.test(t)){S.step='sort';await botSay('What should the file sort by first? (e.g. Country, Currency, Merchant)');return;}
+      S.step='review';setStepper(4);await botSay('All set. Here\u2019s the full setup for your review:');await showReview();return;
+    }
+    case 'sort': {
+      S.sort1=raw.trim().replace(/</g,'&lt;').split(/\s+/).map(w=>w[0].toUpperCase()+w.slice(1)).join(' ');
+      S.step='review';setStepper(4);
+      await botSay(`Sorting set: <b>${S.sort1} → ${S.sort2}</b>.`);
+      await showReview();return;
+    }
+    case 'review': {
+      if(/submit/.test(t)){S.step='done';setStepper(5);
+        await botSay('Submitting…');await botCard(successCard(),1200);
+        chips(['Create another setup']);return;}
+      if(/template/.test(t)){S.step='template';setStepper(1);
+        await botSay('Sure — which template? Here\u2019s my recommendation again:');
+        await botCard(templateCard('GL1025 - Global Daily Unbilled'));
+        chips(['Use GL1025','Tell me about GL1026','Show all templates']);return;}
+      if(/account/.test(t)){S.step='accounts';setStepper(2);S.fixTries=0;await askAccounts();return;}
+      await botSay('You can <b>Submit setup</b>, or say what to change — e.g. <b>change template</b>, <b>change control accounts</b>.');
+      chips(['Submit setup','Change template','Change control accounts']);return;
+    }
+    case 'done': {
+      Object.assign(S,{step:'intent',profile:null,template:null,accounts:[],rejected:[],hold:null,sort1:'Country',sort2:'Currency',fixTries:0});
+      setStepper(0);
+      await botSay('Fresh canvas. What data file do you need?');
+      chips(['Create a daily unbilled file for Jboss Uplift']);return;
+    }
+  }
+}
+async function askAccounts(){
+  await botSay(`Next: <b>control accounts</b> for the reporting hierarchy (Reporting Group 11111, “Proxy &amp; Company”).<br>Paste your list, or use the sample batch of 21 to see validation in action.`);
+  chips(['Use sample batch (21)']);
+}
+async function askDetails(){
+  await botSay(`Nearly done — I've pre-filled the rest from your profile and your last setup:<br>
+   • <b>Delivery:</b> ASCII over SFT → Concur · Real-time expense: No<br>
+   • <b>File:</b> Daily, 10/01/2026 → 12/31/9999, ISO numeric, no hold<br>
+   • <b>Data:</b> Consolidate by process date, no compression, sort ${S.sort1} → ${S.sort2}<br>
+   • <b>Masking:</b> Card numbers fully masked<br><br>Anything to change?`);
+  chips(['Looks good','Hold delivery until Oct 15','Change sorting']);
+}
+async function showReview(){
+  await botCard(reviewCard());
+  chips(['Submit setup','Change template','Change control accounts']);
+}
+document.getElementById('send').onclick=()=>{const v=inp.value.trim();if(!v)return;inp.value='';chipsEl.innerHTML='';sendUser(v);};
+inp.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('send').click();});
+
+(async function init(){
+  setStepper(0);
+  await botSay(`Hi! I'm the <b>setup agent</b> — I'll build your data-file setup through conversation instead of the 7-screen wizard.<br><br>Just tell me what you need in plain words. Try:<br><b>Create a daily unbilled file for Jboss Uplift</b>`);
+  chips(['Create a daily unbilled file for Jboss Uplift','What can you do?']);
+})();
+</script>
+</body>
+</html>
