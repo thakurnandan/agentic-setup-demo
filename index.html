@@ -49,6 +49,9 @@
   .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;
          background:#e3f0fd;color:var(--amex-dark);margin-left:6px;vertical-align:1px}
   .badge.rec{background:#dff0e4;color:var(--ok)}
+  .conf{display:inline-block;font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:1px}
+  .conf.high{background:#dff0e4;color:var(--ok)}
+  .conf.low{background:#fdf3e7;color:#8a6d00;border:1px solid #f0c987}
   .why{font-size:13px;color:var(--muted);margin-top:3px}
   .why b{color:var(--ink);font-weight:600}
   .callout{border-radius:10px;padding:10px 14px;font-size:13.5px;margin-top:10px}
@@ -86,8 +89,9 @@
 <main>
   <div class="wrap">
     <div class="hint">
-      <b>What to type:</b> start with <code>I need a daily unbilled file for Jboss Uplift</code>.
-      Then react naturally — <code>only US accounts</code>, <code>actually, make it weekly</code>,
+      <b>Tell me what you want to set up.</b>
+      For example: <code>I need a daily unbilled file for Jboss Uplift</code> — then react naturally:
+      <code>only US accounts</code>, <code>actually, make it weekly</code>,
       <code>use the lite template</code>. The agent adapts in place; nothing restarts.
       Type <code>help</code> anytime.
     </div>
@@ -140,17 +144,18 @@ function sendUser(text){addMsg(text.replace(/</g,'&lt;'),'user');handle(text);}
 
 function proposalCard(){
   return `<h4>Here\u2019s what I\u2019d set up</h4>
-  <div class="prow"><div class="k">Client</div><div class="v"><b>${D.client}</b> · ${D.rid} · ${D.market} · Active
+  <div class="prow"><div class="k">Client</div><div class="v"><b>${D.client}</b> · ${D.rid} · ${D.market} · Active <span class="conf high">auto-applied</span>
     <div class="why">Resolved from your message — I filtered out 1 cancelled profile automatically.</div></div></div>
   <div class="prow"><div class="k">Template</div><div class="v"><b>${D.template}</b><span class="badge rec">recommended</span>
     <div class="why"><b>Why:</b> ${D.templateWhy}</div>
     <div class="why">Alternative: <b>${D.templateAlt}</b> — drops detail fields, ~30% smaller files.</div></div></div>
-  <div class="prow"><div class="k">Accounts</div><div class="v"><b>${D.accounts} ${D.accountScope}</b>, all validated
+  <div class="prow"><div class="k">Accounts</div><div class="v"><b>${D.accounts} ${D.accountScope}</b>, all validated <span class="conf low">your call</span>
     <div class="why">Checked against recipient ${D.rid} — no action needed from you.</div></div></div>
-  <div class="prow"><div class="k">Delivery</div><div class="v"><b>${D.delivery}</b>
+  <div class="prow"><div class="k">Delivery</div><div class="v"><b>${D.delivery}</b> <span class="conf high">auto-applied</span>
     <div class="why">Kept from your existing configuration — say the word to change it.</div></div></div>
-  <div class="prow"><div class="k">Schedule</div><div class="v"><b>${D.frequency}</b> from 10/01/2026 · Hold: <b>${D.hold}</b></div></div>
-  <div class="prow"><div class="k">Data</div><div class="v">${D.masking} · Consolidate by process date · Sort ${D.sorting} · No compression</div></div>
+  <div class="prow"><div class="k">Schedule</div><div class="v"><b>${D.frequency}</b> · from 10/01/2026 · <b>ongoing</b> (no end date) · Hold: <b>${D.hold}</b> <span class="conf high">auto-applied</span></div></div>
+  <div class="prow"><div class="k">Data</div><div class="v">${D.masking} · Consolidate by process date · Sort ${D.sorting} · No compression <span class="conf high">auto-applied</span></div></div>
+  <div class="callout warn"><b>One decision needed:</b> all ${D.accounts} accounts, or a subset? <span style="color:#8a6d00">e.g. \u201conly US accounts\u201d</span></div>
   ${D.note?`<div class="callout warn"><b>Note</b>${D.note}</div>`:''}`;
 }
 function successCard(){
@@ -161,7 +166,7 @@ function successCard(){
    <div class="prow"><div class="k">Client</div><div class="v"><b>${D.client}</b> · ${D.rid}</div></div>
    <div class="prow"><div class="k">Template</div><div class="v"><b>${D.template}</b></div></div>
    <div class="prow"><div class="k">Accounts</div><div class="v">${D.accounts} ${D.accountScope}</div></div>
-   <div class="prow"><div class="k">Schedule</div><div class="v">${D.frequency}${D.hold!=='none'?' · hold until '+D.hold:''}</div></div>
+   <div class="prow"><div class="k">Schedule</div><div class="v">${D.frequency} · ongoing${D.hold!=='none'?' · hold until '+D.hold:''}</div></div>
    <div style="margin-top:8px;font-size:13px"><b>Files that will generate</b><br>
    ${files.map(f=>`<span style="font-family:monospace">${f}</span>${cp(f)}`).join('<br>')}</div>
    <div class="callout ok"><b>What happens next</b>Files generate ${D.frequency.toLowerCase().split(' ')[0]} and land via SFT for Concur. First file arrives the next business day after 10/01/2026.</div>`;
@@ -174,15 +179,15 @@ async function investigate(goal){
   const unbilled=/unbilled/.test(goal), monthly=/monthly/.test(goal);
   if(monthly&&!/unbilled/.test(goal)){D.template='GL1022 - Global Monthly Billed';D.frequency='Monthly';
     D.templateWhy='Monthly cadence + billed data.';}
-  await status('<b>✓</b> Resolved client: <b>jboss Uplift_Client (780943)</b> — active, USA');
-  await status('<b>✓</b> Matched template: <b>'+D.template+'</b> (1 alternative considered)');
-  await status('<b>✓</b> Validated <b>18 eligible accounts</b> against this recipient');
-  await status('<b>✓</b> Pulled delivery &amp; data preferences from your existing configuration');
+  await status('<b>✓</b> Resolved client: <b>jboss Uplift_Client (780943)</b> — active, USA <span class="conf high">auto-applied</span>');
+  await status('<b>✓</b> Matched template: <b>'+D.template+'</b> (1 alternative considered) <span class="conf high">auto-applied</span>');
+  await status('<b>✓</b> Validated <b>18 eligible accounts</b> against this recipient <span class="conf low">your call</span>');
+  await status('<b>✓</b> Pulled delivery &amp; data preferences from your existing configuration <span class="conf high">auto-applied</span>');
   phase='consult';
-  setReady(85,'<b>Setup is 85% ready</b> — I only need your reaction to the proposal below.');
-  await say('Here\u2019s my proposal. I\u2019ve resolved everything I could — react to anything, or confirm.',700);
+  setReady(90,'<b>Setup is 90% ready</b> — one decision needed: account scope.');
+  await say('Here\u2019s my proposal. Everything high-confidence is applied — one judgment call is yours:',700);
   addCard(proposalCard());
-  await say('Does that sound right?',400);
+  await say('All 18 accounts, or a subset? <span style="color:var(--muted)">(e.g. \u201conly US accounts\u201d)</span>',400);
   chips(['Looks good — submit it','Only US accounts','Actually, make it weekly'],'Shortcuts (optional):');
 }
 
@@ -299,7 +304,7 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('s
 (async function init(){
   setReady(4,'Tell me what you need — I\u2019ll figure out the configuration with you.');
   await say(`Hi — I\u2019m your <b>setup consultant</b>. Don\u2019t walk through a form; just tell me the outcome you want.<br><br>Try: <b>I need a daily unbilled file for Jboss Uplift</b>`,800);
-  chips(['I need a daily unbilled file for Jboss Uplift'],'Start with:');
+  chips(['I need a daily unbilled file for Jboss Uplift'],'Try:');
 })();
 </script>
 </body>
