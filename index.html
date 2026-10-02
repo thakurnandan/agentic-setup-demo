@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Setup Agent — Interactive Concept</title>
+<title>Setup Agent — 3 Ways</title>
 <style>
   :root{
     --amex:#006FCF; --amex-dark:#002663; --ink:#1b2a3a; --muted:#5b6b7c;
@@ -18,25 +18,43 @@
   header .logo{font-weight:800;letter-spacing:.5px;font-size:18px}
   header .tag{font-size:12px;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:20px}
   header .mock{margin-left:auto;font-size:12px;opacity:.9}
-  .readiness{background:#fff;border-bottom:1px solid var(--line);padding:10px 20px}
-  .readiness .lbl{font-size:13px;color:var(--muted);margin-bottom:6px}
-  .readiness .lbl b{color:var(--ink)}
-  .bar{height:8px;background:#e6ecf3;border-radius:6px;overflow:hidden;max-width:520px}
-  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--amex),#37a0f0);
-         border-radius:6px;transition:width .6s ease}
-  main{flex:1;display:flex;justify-content:center;padding:18px 14px}
-  .wrap{width:100%;max-width:880px;display:flex;flex-direction:column;gap:12px}
-  .hint{background:#fff8e6;border:1px solid #f0d98c;border-radius:12px;padding:12px 16px;font-size:14px}
+  /* ---- tabs ---- */
+  .tabs{display:flex;gap:10px;justify-content:center;padding:14px 14px 4px;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 20px;cursor:pointer;
+       text-align:left;min-width:200px;transition:box-shadow .15s}
+  .tab b{display:block;font-size:15px;color:var(--ink)}
+  .tab span{font-size:12px;color:var(--muted)}
+  .tab.active{border-color:var(--amex);box-shadow:0 0 0 2px #bcd6f2}
+  .tab.active b{color:var(--amex-dark)}
+  .panel{display:none}
+  .panel.active{display:block}
+  main{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 14px 18px}
+  .panel{width:100%;max-width:1180px}
+  .wrap{width:100%;max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .hint{background:#fff8e6;border:1px solid #f0d98c;border-radius:12px;padding:12px 16px;font-size:14px;
+        max-width:880px;margin:0 auto 12px}
   .hint b{color:var(--amber)}
   .hint code{background:#f4ecd2;padding:2px 8px;border-radius:6px;font-size:13px}
-  #chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;
-        height:56vh;min-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+  .panel .hint{max-width:1180px}
+  /* ---- v1 progress ---- */
+  .stepsbar{height:6px;background:#e6ecf3;border-radius:6px;overflow:hidden;max-width:880px;margin:0 auto}
+  .stepsbar i{display:block;height:100%;background:var(--amex);width:0;transition:width .5s;border-radius:6px}
+  .stepslbl{text-align:center;font-size:12.5px;color:var(--muted);margin:6px 0 12px}
+  /* ---- readiness (v2) ---- */
+  .readiness{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 16px}
+  .readiness .lbl{font-size:13px;color:var(--muted);margin-bottom:6px}
+  .readiness .lbl b{color:var(--ink)}
+  .bar{height:8px;background:#e6ecf3;border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--amex),#37a0f0);
+         border-radius:6px;transition:width .6s ease}
+  /* ---- chat ---- */
+  .chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;
+        height:54vh;min-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
   .msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14.5px;line-height:1.5}
   .msg.bot{background:#f2f6fb;border:1px solid var(--line);align-self:flex-start;border-top-left-radius:4px}
   .msg.user{background:var(--amex);color:#fff;align-self:flex-end;border-top-right-radius:4px}
   .msg.typing{color:var(--muted);font-style:italic}
-  .msg.status{align-self:flex-start;background:none;border:none;color:var(--muted);font-size:13px;
-              padding:2px 4px}
+  .msg.status{align-self:flex-start;background:none;border:none;color:var(--muted);font-size:13px;padding:2px 4px}
   .msg.status b{color:var(--ok);font-weight:600}
   .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;
         align-self:flex-start;max-width:94%;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
@@ -49,11 +67,12 @@
   .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;
          background:#e3f0fd;color:var(--amex-dark);margin-left:6px;vertical-align:1px}
   .badge.rec{background:#dff0e4;color:var(--ok)}
-  .conf{display:inline-block;font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:1px}
-  .conf.high{background:#dff0e4;color:var(--ok)}
-  .conf.low{background:#fdf3e7;color:#8a6d00;border:1px solid #f0c987}
   .why{font-size:13px;color:var(--muted);margin-top:3px}
   .why b{color:var(--ink);font-weight:600}
+  .conf{display:inline-block;font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;
+        margin-left:6px;vertical-align:1px}
+  .conf.high{background:#dff0e4;color:var(--ok)}
+  .conf.low{background:#fdf3e7;color:#8a6d00;border:1px solid #f0c987}
   .callout{border-radius:10px;padding:10px 14px;font-size:13.5px;margin-top:10px}
   .callout.ok{background:#e9f6ee;border:1px solid #9fd3ae}
   .callout.warn{background:#fdf3e7;border:1px solid #f0c987}
@@ -61,55 +80,260 @@
          font-size:13.5px;margin-top:8px;align-self:flex-start;max-width:94%}
   .copybtn{font-size:11px;margin-left:8px;cursor:pointer;border:1px solid var(--line);background:#fff;
            border-radius:6px;padding:2px 8px}
-  #chips{display:flex;flex-wrap:wrap;gap:8px;min-height:10px}
-  #chips button{background:var(--chip);border:1px solid #bcd6f2;color:var(--amex-dark);font-size:13.5px;
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:10px}
+  .chips button{background:var(--chip);border:1px solid #bcd6f2;color:var(--amex-dark);font-size:13.5px;
                 padding:8px 14px;border-radius:20px;cursor:pointer}
-  #chips button:hover{background:#d8e9fa}
-  #chips .lbl{font-size:12px;color:var(--muted);align-self:center;margin-right:2px}
-  #bar{display:flex;gap:8px}
-  #inp{flex:1;padding:12px 16px;border:1px solid var(--line);border-radius:24px;font-size:15px;outline:none}
-  #inp:focus{border-color:var(--amex)}
-  #send{background:var(--amex);color:#fff;border:none;border-radius:24px;padding:0 22px;font-size:15px;
+  .chips button:hover{background:#d8e9fa}
+  .chips .lbl{font-size:12px;color:var(--muted);align-self:center;margin-right:2px}
+  .inputbar{display:flex;gap:8px}
+  .inp{flex:1;padding:12px 16px;border:1px solid var(--line);border-radius:24px;font-size:15px;outline:none}
+  .inp:focus{border-color:var(--amex)}
+  .send{background:var(--amex);color:#fff;border:none;border-radius:24px;padding:0 22px;font-size:15px;
         cursor:pointer;font-weight:600}
-  #send:hover{background:#005cb0}
+  .send:hover{background:#005cb0}
+  /* ---- v3 living draft ---- */
+  .v3grid{display:grid;grid-template-columns:1fr 330px;gap:12px;align-items:start}
+  .v3grid .wrap{max-width:none}
+  @media(max-width:920px){.v3grid{grid-template-columns:1fr}}
+  .draft{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:sticky;top:12px}
+  .draft h4{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--amex-dark);
+            display:flex;align-items:center;gap:8px}
+  .live{font-size:11px;color:var(--ok);text-transform:none;letter-spacing:0;font-weight:700}
+  .dempty{font-size:13px;color:var(--muted);padding:12px 0}
+  .drow{padding:8px 4px;border-top:1px solid #eef2f7;font-size:13.5px;border-radius:6px}
+  .drow .dk{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .drow .dv{margin-top:3px;line-height:1.45}
+  .drow.flash{animation:flash 1.8s ease}
+  @keyframes flash{0%{background:#fff3d6}100%{background:transparent}}
+  .dtag{font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;margin-left:6px;white-space:nowrap}
+  .dtag.auto{background:#dff0e4;color:var(--ok)}
+  .dtag.rec{background:#e3f0fd;color:var(--amex-dark)}
+  .dtag.call{background:#fdf3e7;color:#8a6d00;border:1px solid #f0c987}
+  .dtag.you{background:#e8f1fb;color:var(--amex-dark)}
+  .dassump{margin-top:10px;background:#f7fafd;border:1px dashed #bcd6f2;border-radius:10px;
+           padding:10px 12px;font-size:12.5px;color:var(--muted)}
+  .dassump b{color:var(--ink)}
+  .dassump ul{margin:6px 0 0;padding-left:18px}
+  .dassump li{margin:2px 0}
   footer{text-align:center;font-size:12px;color:var(--muted);padding:14px}
-  @media(max-width:640px){.msg{max-width:94%}.prow{flex-direction:column;gap:2px}.prow .k{width:auto}}
+  @media(max-width:640px){.msg{max-width:94%}.prow{flex-direction:column;gap:2px}.prow .k{width:auto}.tab{min-width:0;flex:1}}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">Setup&nbsp;Agent</div>
-  <div class="tag">Agentic concept</div>
+  <div class="tag">3 concept directions</div>
   <div class="mock">Concept mock — simulated responses, no real backend</div>
 </header>
-<div class="readiness">
-  <div class="lbl" id="readyLbl">Tell me what you need — I'll figure out the configuration with you.</div>
-  <div class="bar"><i id="readyBar" style="width:4%"></i></div>
-</div>
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="v1"><b>V1 · Guided</b><span>Step-by-step, done well</span></button>
+  <button class="tab" data-tab="v2"><b>V2 · Consultant</b><span>Investigate, then propose</span></button>
+  <button class="tab" data-tab="v3"><b>V3 · Concierge</b><span>Confidence-driven + living draft</span></button>
+</nav>
 <main>
-  <div class="wrap">
-    <div class="hint">
-      <b>Tell me what you want to set up.</b>
-      For example: <code>I need a daily unbilled file for Jboss Uplift</code> — then react naturally:
-      <code>only US accounts</code>, <code>actually, make it weekly</code>,
-      <code>use the lite template</code>. The agent adapts in place; nothing restarts.
-      Type <code>help</code> anytime.
+  <!-- ============ V1 ============ -->
+  <section id="panel-v1" class="panel active">
+    <div class="hint"><b>V1 · Guided.</b> The honest step-by-step: 7 quick steps, smart defaults pre-filled,
+      validation with reasons inline, and you can go back anytime. This is the baseline the other two beat.</div>
+    <div class="stepsbar"><i id="v1-bar"></i></div>
+    <div class="stepslbl" id="v1-steplbl"></div>
+    <div class="wrap">
+      <div id="v1-chat" class="chat"></div>
+      <div id="v1-chips" class="chips"></div>
+      <div class="inputbar"><input id="v1-inp" class="inp" placeholder="Answer, or pick a shortcut…" autocomplete="off"><button id="v1-send" class="send">Send</button></div>
     </div>
-    <div id="chat"></div>
-    <div id="chips"></div>
-    <div id="bar">
-      <input id="inp" placeholder="Tell me what you need…" autocomplete="off">
-      <button id="send">Send</button>
+  </section>
+  <!-- ============ V2 ============ -->
+  <section id="panel-v2" class="panel">
+    <div class="hint"><b>V2 · Consultant.</b> The agent investigates first — client, template, accounts, delivery —
+      then proposes a near-complete draft. React naturally (<code>only US accounts</code>,
+      <code>actually, make it weekly</code>); nothing restarts.</div>
+    <div class="wrap">
+      <div class="readiness">
+        <div class="lbl" id="v2-readyLbl">Tell me what you need — I&#8217;ll figure out the configuration with you.</div>
+        <div class="bar"><i id="v2-readyBar" style="width:4%"></i></div>
+      </div>
+      <div id="v2-chat" class="chat"></div>
+      <div id="v2-chips" class="chips"></div>
+      <div class="inputbar"><input id="v2-inp" class="inp" placeholder="Tell me what you need…" autocomplete="off"><button id="v2-send" class="send">Send</button></div>
     </div>
-  </div>
+  </section>
+  <!-- ============ V3 ============ -->
+  <section id="panel-v3" class="panel">
+    <div class="hint"><b>V3 · Concierge.</b> Confidence-driven: high-confidence settings are auto-applied and disclosed,
+      only the genuine judgment call is asked. The <b>living draft</b> updates with every change.
+      Suggested demo path: 1) state the goal &nbsp;2) try to break it — <code>actually, make it weekly</code> &nbsp;3) submit.</div>
+    <div class="v3grid">
+      <div class="wrap">
+        <div id="v3-chat" class="chat"></div>
+        <div id="v3-chips" class="chips"></div>
+        <div class="inputbar"><input id="v3-inp" class="inp" placeholder="Tell me the outcome you want…" autocomplete="off"><button id="v3-send" class="send">Send</button></div>
+      </div>
+      <aside class="draft" id="v3-draft">
+        <h4>Setup draft <span class="live">● live</span></h4>
+        <div class="dempty" id="v3-dempty">The draft appears here once you state your goal.</div>
+        <div id="v3-drows"></div>
+        <div class="dassump" id="v3-dassump" style="display:none"><b>Assumptions I made</b><ul id="v3-dassumplist"></ul></div>
+      </aside>
+    </div>
+  </section>
 </main>
 <footer>
-  Concept simulation of an AI setup consultant — goal in, investigated proposal out, natural corrections, no exposed workflow.
+  Concept simulation — three directions for an agentic setup experience. Goal in, investigated proposal out, natural corrections, no exposed wizard.
 </footer>
 
 <script>
-const chat=document.getElementById('chat'), chipsEl=document.getElementById('chips'), inp=document.getElementById('inp');
-const readyBar=document.getElementById('readyBar'), readyLbl=document.getElementById('readyLbl');
+/* ================= shared sim factory ================= */
+function Sim(p){
+  const chat=document.getElementById(p+'-chat'),
+        chipsEl=document.getElementById(p+'-chips'),
+        inp=document.getElementById(p+'-inp');
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  function scrollDown(){chat.scrollTop=chat.scrollHeight;}
+  function addMsg(html,cls){const d=document.createElement('div');d.className='msg '+(cls||'bot');d.innerHTML=html;chat.appendChild(d);scrollDown();return d;}
+  function addCard(html){const d=document.createElement('div');d.className='card';d.innerHTML=html;chat.appendChild(d);scrollDown();return d;}
+  function setChips(list,label){chipsEl.innerHTML='';
+    if(label){const s=document.createElement('span');s.className='lbl';s.textContent=label;chipsEl.appendChild(s);}
+    list.forEach(c=>{const b=document.createElement('button');b.textContent=c;
+      b.onclick=()=>{setChips([],null);sendUser(c);};chipsEl.appendChild(b);});}
+  async function say(html,ms){const t=addMsg('&hellip;','bot typing');await wait(ms==null?650:ms);t.remove();addMsg(html,'bot');}
+  async function status(html,ms){await wait(ms==null?500:ms);addMsg(html,'status');}
+  let handle=async()=>{};
+  function sendUser(text){addMsg(text.replace(/</g,'&lt;'),'user');handle(text);}
+  document.getElementById(p+'-send').onclick=()=>{const v=inp.value.trim();if(!v)return;inp.value='';setChips([],null);sendUser(v);};
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById(p+'-send').click();});
+  return {say,status,addMsg,addCard,setChips,sendUser,wait,onHandle(fn){handle=fn;}};
+}
+/* ================= tab switching (lazy init) ================= */
+const started={};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  const id=b.dataset.tab;
+  document.getElementById('panel-'+id).classList.add('active');
+  if(!started[id]){started[id]=true;({v1:initV1,v2:initV2,v3:initV3})[id]();}
+});
+</script>
+<script>
+/* ================= V1 · Guided — step-by-step, done well ================= */
+function initV1(){
+  const S=Sim('v1');
+  const bar=document.getElementById('v1-bar'), slbl=document.getElementById('v1-steplbl');
+  const NAMES=['Profile','Template','Accounts','Delivery','Schedule','Data','Review'];
+  const st={step:-1,hist:[],client:'',template:'GL1025 - Global Daily Unbilled',accounts:18,
+            acctNote:'all eligible',delivery:'SFT → Concur (ASCII)',hold:'none',freq:'Daily',
+            masking:'Fully masked',sort:'Country → Currency'};
+  function prog(){const n=Math.max(0,Math.min(st.step+1,7));bar.style.width=(n/7*100)+'%';
+    slbl.textContent=st.step<0?'':(st.step>=7?'Complete ✓':('Step '+(st.step+1)+' of 7 · '+NAMES[st.step]));}
+  function go(n){if(st.step>=0)st.hist.push(st.step);st.step=n;prog();STEPS[n].ask();}
+  function backTo(){const p=st.hist.pop();if(p==null||p<0){S.say('This is the first step — nothing to go back to.');return;}
+    st.step=p;prog();STEPS[p].ask();}
+  const BACK=['← Back'];
+  function heardBack(t){return /back|previous/.test(t);}
+
+  const FILES=['R661122.AMEX.R1109083.GL1025.099','R661122.AMEX.R1109083.GL1025.098',
+    'R661122_8001109083_GL1025_099_DDATETEST1M68_6SFQ5.pgp','R661122_8001109083_GL1025_098_DDATETEST1M68_6SFQ5.pgp'];
+  const cp=t=>` <button class="copybtn" onclick="navigator.clipboard.writeText('${t}')">copy</button>`;
+  function reviewCard(){
+    return `<h4>Review — step 7 of 7</h4>
+    <div class="prow"><div class="k">Client</div><div class="v"><b>${st.client}</b></div></div>
+    <div class="prow"><div class="k">Template</div><div class="v"><b>${st.template}</b></div></div>
+    <div class="prow"><div class="k">Accounts</div><div class="v"><b>${st.accounts}</b> ${st.acctNote}, validated</div></div>
+    <div class="prow"><div class="k">Delivery</div><div class="v"><b>${st.delivery}</b></div></div>
+    <div class="prow"><div class="k">Schedule</div><div class="v"><b>${st.freq}</b> · from 10/01/2026 · <b>ongoing</b> (no end date)${st.hold!=='none'?' · hold until '+st.hold:''}</div></div>
+    <div class="prow"><div class="k">Data</div><div class="v">${st.masking} · sort ${st.sort} · no compression</div></div>`;
+  }
+  function successCard(){
+    return `<h4 style="color:var(--ok)">✓ Setup created</h4>
+    <div class="prow"><div class="k">Client</div><div class="v"><b>${st.client}</b></div></div>
+    <div class="prow"><div class="k">Template</div><div class="v"><b>${st.template}</b></div></div>
+    <div class="prow"><div class="k">Accounts</div><div class="v">${st.accounts} ${st.acctNote}</div></div>
+    <div style="margin-top:8px;font-size:13px"><b>Files that will generate</b><br>
+    ${FILES.map(f=>`<span style="font-family:monospace">${f}</span>${cp(f)}`).join('<br>')}</div>
+    <div class="callout ok"><b>What happens next</b>Files generate ${st.freq.toLowerCase()} and land via SFT for Concur. First file arrives the next business day after 10/01/2026.</div>`;
+  }
+
+  const STEPS=[
+   {ask(){S.say(`I\u2019ll walk you through this <b>step by step — 7 quick steps</b>. Most answers are pre-filled from your existing setups; you can go back anytime.<br><br><b>Step 1 · Profile</b> — who is this setup for?`);
+      S.setChips(['Jboss Uplift (780943)'],'');},
+    on(t){if(heardBack(t)){S.say('This is the first step — nothing to go back to.');return;}
+      if(/jboss|780943|uplift/.test(t)){st.client='jboss Uplift_Client · 780943 · Active, USA';
+        S.status('<b>✓</b> Resolved — active profile, USA. Skipped 1 cancelled lookalike automatically.');go(1);}
+      else S.say('I couldn\u2019t find that profile. Try <b>Jboss Uplift</b>.');}},
+   {ask(){S.say(`<b>Step 2 · Template</b> — I recommend <b>GL1025 · Global Daily Unbilled</b>.<br><span style="color:var(--muted)">Why: daily cadence + unbilled data — and it\u2019s what 4 of your 5 recent US setups use.</span>`);
+      S.setChips(['Use GL1025','Use GL1026 Lite','Show all 20'].concat(BACK),'');},
+    on(t){if(heardBack(t)){backTo();return;}
+      if(/1026|lite/.test(t))st.template='GL1026 - Global Daily Unbilled Lite';
+      else if(/all 20|show all|list/.test(t)){S.say('The 20 templates boil down to 3 families: <b>Global daily</b> (GL1025), <b>Global daily lite</b> (GL1026), <b>Regional</b> (GM1025). For unbilled + global, GL1025 is the one — stick with it?');S.setChips(['Use GL1025','Use GL1026 Lite'].concat(BACK),'');return;}
+      else st.template='GL1025 - Global Daily Unbilled';
+      S.status('<b>✓</b> Template: <b>'+st.template+'</b>');go(2);}},
+   {ask(){S.say(`<b>Step 3 · Accounts</b> — add control accounts. Paste IDs, or reuse the 21 from your last upload and I\u2019ll validate instantly.`);
+      S.setChips(['Use last upload (21 accounts)'].concat(BACK),'');},
+    on:async function(t){if(heardBack(t)){backTo();return;}
+      if(/last upload|21|upload|use/.test(t)){
+        await S.status('Validating 21 accounts against recipient 780943…',700);
+        S.addMsg(`<b>18 added ✓</b> · 3 failed — here\u2019s exactly why:<br>
+          · <span style="font-family:monospace">…4417</span> — inactive account<br>
+          · <span style="font-family:monospace">…4423</span> — duplicate of an existing row<br>
+          · <span style="font-family:monospace">…4431</span> — not linked to recipient 780943<br>
+          <span style="color:var(--muted);font-size:13px">Full numbers stay masked — only last-4 shown.</span>`,'bot');
+        S.setChips(['Continue with 18','I\u2019ll fix the file'].concat(BACK),'');this._awaitFix=true;return;}
+      if(this._awaitFix){
+        if(/continue|18|exclude|skip/.test(t)){st.accounts=18;st.acctNote='eligible';this._awaitFix=false;
+          S.status('<b>✓</b> Accounts: <b>18 eligible</b> (3 excluded with reasons logged).');go(3);return;}
+        if(/fix/.test(t)){await S.say('No problem — upload the corrected file whenever ready. I\u2019ll re-validate instantly. For now I\u2019ll continue with the 18 good ones; say <b>back</b> after to revisit.');
+          st.accounts=18;st.acctNote='eligible';this._awaitFix=false;
+          S.status('<b>✓</b> Accounts: <b>18 eligible</b>');go(3);return;}
+      }
+      S.say('Paste the account IDs, or tap <b>Use last upload</b> and I\u2019ll validate them right here.');}},
+   {ask(){S.say(`<b>Step 4 · Delivery</b> — pre-filled from your existing configuration:<br><b>${st.delivery}</b><br><span style="color:var(--muted)">ASCII · SFT · Concur — the standard for this destination.</span>`);
+      S.setChips(['Keep as is','Change delivery'].concat(BACK),'');},
+    on(t){if(heardBack(t)){backTo();return;}
+      if(/change/.test(t)){S.say('What should delivery be instead? e.g. <i>“deliver via email”</i>. (In this mock I\u2019ll keep SFT → Concur and note your preference.)');
+        S.setChips(['Keep SFT → Concur'].concat(BACK),'');return;}
+      S.status('<b>✓</b> Delivery: <b>'+st.delivery+'</b>');go(4);}},
+   {ask(){S.say(`<b>Step 5 · Schedule</b> — <b>Daily</b> from 10/01/2026, <b>ongoing</b> (no end date).<br><span style="color:var(--muted)">Want the files held before first release?</span>`);
+      S.setChips(['No hold','Hold until Oct 15'].concat(BACK),'');},
+    on(t){if(heardBack(t)){backTo();return;}
+      if(/hold until|oct 15/.test(t)){st.hold='10/15/2026';}
+      else if(/weekly/.test(t)){st.freq='Weekly';}
+      else if(/monthly/.test(t)){st.freq='Monthly';}
+      S.status('<b>✓</b> Schedule: <b>'+st.freq+'</b> from 10/01/2026, ongoing'+(st.hold!=='none'?' · hold until '+st.hold:''));go(5);}},
+   {ask(){S.say(`<b>Step 6 · Data</b> — standard for Concur, pre-filled:<br><b>${st.masking}</b> card numbers · sort ${st.sort} · no compression · consolidate by process date.`);
+      S.setChips(['Looks good','Change masking'].concat(BACK),'');},
+    on(t){if(heardBack(t)){backTo();return;}
+      if(/change masking|unmask|last-4|last 4/.test(t)){
+        if(/unmask|full/.test(t)){S.say('I can\u2019t fully unmask — card numbers stay masked per policy. I can offer <b>last-4 visible</b> instead.');S.setChips(['Last-4 visible','Keep fully masked'].concat(BACK),'');return;}
+        st.masking='Last-4 visible';}
+      S.status('<b>✓</b> Data: <b>'+st.masking+'</b> · sort '+st.sort);go(6);}},
+   {ask(){S.addCard(reviewCard());
+      S.say('That\u2019s everything — review above, then submit. Or go back to change any step.');
+      S.setChips(['Submit setup','← Back'],'');},
+    on:async function(t){
+      if(/back/.test(t)){backTo();return;}
+      if(/submit|yes|confirm|looks good/.test(t)){st.step=7;prog();
+        await S.say('Submitting…',700);S.addCard(successCard());
+        S.setChips(['Set up another one'],'');return;}
+      S.say('Tap <b>Submit setup</b> when it looks right, or <b>← Back</b> to change a step.');}}
+  ];
+
+  S.onHandle(t=>{const s=STEPS[st.step];if(s)s.on(t.toLowerCase().trim());});
+  (async()=>{prog();await S.say(`Hi — guided setup, <b>7 steps</b>, smart defaults, no jargon quizzes.<br><br>We\u2019ll set up a daily unbilled file together. Ready?`,800);
+    S.setChips(['Let\u2019s start'],'');
+    const orig=S.onHandle.bind(S);
+    S.onHandle(async t=>{const tt=t.toLowerCase().trim();
+      if(st.step===-1&&/start|yes|ok|go|begin/.test(tt)){go(0);return;}
+      if(st.step===-1){await S.say('Tap <b>Let\u2019s start</b> when ready.');return;}
+      const s=STEPS[st.step];if(s)s.on(tt);});
+  })();
+}
+</script>
+<script>
+/* ================= V2 · Consultant — investigate, then propose ================= */
+function initV2(){
+const chat=document.getElementById('v2-chat'), chipsEl=document.getElementById('v2-chips'), inp=document.getElementById('v2-inp');
+const readyBar=document.getElementById('v2-readyBar'), readyLbl=document.getElementById('v2-readyLbl');
 
 /* Draft state — everything the agent has resolved so far */
 const D={goal:null,client:'jboss Uplift_Client',rid:'780943',market:'USA',
@@ -127,9 +351,7 @@ function setReady(pct,label){
   D.readiness=pct;
 }
 function scrollDown(){chat.scrollTop=chat.scrollHeight;}
-function addMsg(html,cls='bot'){
-  const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;chat.appendChild(d);scrollDown();return d;
-}
+function addMsg(html,cls){const d=document.createElement('div');d.className='msg '+(cls||'bot');d.innerHTML=html;chat.appendChild(d);scrollDown();return d;}
 function addCard(html){const d=document.createElement('div');d.className='card';d.innerHTML=html;chat.appendChild(d);scrollDown();return d;}
 function chips(list,label){
   chipsEl.innerHTML='';
@@ -138,8 +360,8 @@ function chips(list,label){
     b.onclick=()=>{chipsEl.innerHTML='';sendUser(c);};chipsEl.appendChild(b);});
 }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-async function say(html,ms=650){const t=addMsg('…','bot typing');await wait(ms);t.remove();addMsg(html,'bot');}
-async function status(html,ms=550){await wait(ms);addMsg(html,'status');}
+async function say(html,ms){const t=addMsg('&hellip;','bot typing');await wait(ms==null?650:ms);t.remove();addMsg(html,'bot');}
+async function status(html,ms){await wait(ms==null?550:ms);addMsg(html,'status');}
 function sendUser(text){addMsg(text.replace(/</g,'&lt;'),'user');handle(text);}
 
 function proposalCard(){
@@ -266,8 +488,7 @@ async function handle(raw){
     return;
   }
   if(/hold/.test(t)){
-    const m=t.match(/(oct\w*|nov\w*|dec\w*)\s*(\d{1,2})/);
-    D.hold=m?('10/15/2026'):'10/15/2026';D.readiness=90;
+    D.hold='10/15/2026';D.readiness=90;
     await say('Hold applied.',500);
     await adapt('<b>Updated:</b> delivery hold until <b>10/15/2026</b> — files generate but are released after the hold lifts.');
     return;
@@ -298,14 +519,167 @@ async function handle(raw){
   await say('I can adjust the <b>schedule</b>, <b>accounts</b>, <b>template</b>, <b>delivery</b>, <b>hold</b>, or <b>masking</b> — just say what should change, e.g. <i>“actually, make it weekly”</i>. Or say <b>submit</b> when it looks right.');
 }
 
-document.getElementById('send').onclick=()=>{const v=inp.value.trim();if(!v)return;inp.value='';chipsEl.innerHTML='';sendUser(v);};
-inp.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('send').click();});
+document.getElementById('v2-send').onclick=()=>{const v=inp.value.trim();if(!v)return;inp.value='';chipsEl.innerHTML='';sendUser(v);};
+inp.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('v2-send').click();});
 
-(async function init(){
-  setReady(4,'Tell me what you need — I\u2019ll figure out the configuration with you.');
+setReady(4,'Tell me what you need — I\u2019ll figure out the configuration with you.');
+(async()=>{
   await say(`Hi — I\u2019m your <b>setup consultant</b>. Don\u2019t walk through a form; just tell me the outcome you want.<br><br>Try: <b>I need a daily unbilled file for Jboss Uplift</b>`,800);
   chips(['I need a daily unbilled file for Jboss Uplift'],'Try:');
 })();
+}
+</script>
+<script>
+/* ================= V3 · Concierge — confidence-driven + living draft ================= */
+function initV3(){
+const S=Sim('v3');
+const TAGLBL={auto:'auto-applied',rec:'recommended',call:'your call',you:'you changed'};
+const G={
+  client:{v:'jboss Uplift_Client · 780943 · Active, USA',tag:'auto'},
+  template:{v:'GL1025 - Global Daily Unbilled',tag:'rec',why:'Daily + unbilled. Policy rule R-12 — matches 4 of your 5 recent US setups.'},
+  accounts:{v:'18 eligible accounts',tag:'call'},
+  delivery:{v:'SFT → Concur (ASCII)',tag:'auto'},
+  schedule:{v:'Daily · from 10/01/2026 · ongoing',tag:'auto'},
+  data:{v:'Fully masked · sort Country → Currency',tag:'auto'}
+};
+const ASSUMPTIONS=[
+  'Used the active profile — skipped 1 cancelled lookalike automatically',
+  'Applied your standard Concur delivery (ASCII · SFT) from existing setups',
+  'Set no end date (ongoing) — your usual pattern',
+  'Excluded 3 accounts that failed validation (reasons logged)'
+];
+let phase='greet', freq='Daily', hold='none';
+
+function schedStr(){return freq+' · from 10/01/2026 · ongoing'+(hold!=='none'?' · hold until '+hold:'');}
+function renderDraft(flash){
+  document.getElementById('v3-dempty').style.display='none';
+  const defs=[['Client',G.client],['Template',G.template],['Accounts',G.accounts],['Delivery',G.delivery],['Schedule',G.schedule],['Data',G.data]];
+  document.getElementById('v3-drows').innerHTML=defs.map(([k,f])=>
+    `<div class="drow${flash===k?' flash':''}"><div class="dk">${k}</div><div class="dv">${f.v} <span class="dtag ${f.tag}">${TAGLBL[f.tag]}</span>${f.why?`<div class="why">${f.why}</div>`:''}</div></div>`
+  ).join('');
+  document.getElementById('v3-dassump').style.display='block';
+  document.getElementById('v3-dassumplist').innerHTML=ASSUMPTIONS.map(a=>`<li>${a}</li>`).join('');
+}
+function reviewCard(){
+  const row=(k,v)=>`<div class="prow"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  return `<h4>Ready to create — please confirm</h4>
+  ${row('Client','<b>'+G.client.v+'</b>')}
+  ${row('Template','<b>'+G.template.v+'</b>')}
+  ${row('Accounts','<b>'+G.accounts.v+'</b>')}
+  ${row('Delivery','<b>'+G.delivery.v+'</b>')}
+  ${row('Schedule','<b>'+G.schedule.v+'</b>')}
+  ${row('Data',G.data.v)}
+  <div class="callout warn"><b>Assumptions I made</b><ul style="margin:6px 0 0;padding-left:18px">${ASSUMPTIONS.map(a=>`<li>${a}</li>`).join('')}</ul></div>`;
+}
+function successCard(){
+  const files=['R661122.AMEX.R1109083.GL1025.099','R661122.AMEX.R1109083.GL1025.098',
+    'R661122_8001109083_GL1025_099_DDATETEST1M68_6SFQ5.pgp','R661122_8001109083_GL1025_098_DDATETEST1M68_6SFQ5.pgp'];
+  const cp=t=>` <button class="copybtn" onclick="navigator.clipboard.writeText('${t}')">copy</button>`;
+  return `<h4 style="color:var(--ok)">✓ Setup created</h4>
+   <div class="prow"><div class="k">Template</div><div class="v"><b>${G.template.v}</b></div></div>
+   <div class="prow"><div class="k">Accounts</div><div class="v">${G.accounts.v}</div></div>
+   <div class="prow"><div class="k">Schedule</div><div class="v">${G.schedule.v}</div></div>
+   <div style="margin-top:8px;font-size:13px"><b>Files that will generate</b><br>
+   ${files.map(f=>`<span style="font-family:monospace">${f}</span>${cp(f)}`).join('<br>')}</div>`;
+}
+
+async function investigate(){
+  phase='investigate';
+  await S.say('On it — checking policy rules, your existing setups, and eligible accounts before I ask you anything.',500);
+  await S.status('<b>✓</b> Profile resolved: <b>jboss Uplift_Client (780943)</b> — active, USA <span class="conf high">auto-applied</span>');
+  await S.status('<b>✓</b> Template matched by rule R-12: <b>GL1025</b> <span class="conf high">auto-applied</span>');
+  await S.status('<b>✓</b> 18 of 21 accounts eligible — scope is a judgment call <span class="conf low">your call</span>');
+  await S.status('<b>✓</b> Delivery, schedule &amp; data defaults pulled from your existing setups <span class="conf high">auto-applied</span>');
+  renderDraft();
+  phase='consult';
+  await S.say('The <b>living draft</b> is ready in the panel — everything high-confidence is applied and disclosed. One judgment call is yours:',700);
+  await S.say('<b>All 18 accounts, or a subset?</b> <span style="color:var(--muted)">(e.g. \u201conly US accounts\u201d)</span>',400);
+  S.setChips(['Looks good — review it','Only US accounts','Actually, make it weekly'],'Try breaking it:');
+}
+
+async function handle(raw){
+  const t=raw.toLowerCase().trim();
+  if(phase==='greet'){await investigate();return;}
+  if(phase==='investigate')return;
+
+  if(phase==='consult'){
+    if(/^(yes|yeah|yep|looks good|perfect|review|go ahead)/.test(t)){
+      phase='review';
+      S.addCard(reviewCard());
+      await S.say('Review above — including everything I assumed. Confirm to create.',500);
+      S.setChips(['Confirm & create','Change something'],'');
+      return;
+    }
+    if(/submit|confirm|create it|do it|ship it/.test(t)){phase='review';S.addCard(reviewCard());
+      await S.say('One explicit confirmation — then I\u2019ll create it.',400);
+      S.setChips(['Confirm & create','Change something'],'');return;}
+    if(/only us|us accounts|u\.s\./.test(t)){
+      G.accounts={v:'12 US-domiciled accounts (6 non-US excluded)',tag:'you'};renderDraft('Accounts');
+      await S.say('Done — draft updated. Still yours to change.',450);
+      S.setChips(['Looks good — review it','Actually, make it weekly'],'');return;}
+    if(/all accounts|all eligible/.test(t)){
+      G.accounts={v:'18 eligible accounts',tag:'you'};renderDraft('Accounts');
+      await S.say('Done — back to all 18.',400);return;}
+    if(/weekly/.test(t)){
+      freq='Weekly';G.schedule={v:schedStr()+' — consolidated into one Monday file',tag:'you'};renderDraft('Schedule');
+      await S.say('Done — draft updated. The template generates daily, so I\u2019ll consolidate each week into a single Monday file.',500);
+      S.setChips(['Looks good — review it','Only US accounts'],'');return;}
+    if(/monthly/.test(t)){
+      freq='Monthly';G.schedule={v:schedStr()+' — one file per month',tag:'you'};renderDraft('Schedule');
+      await S.say('Done — no monthly unbilled template exists, so I\u2019ll keep GL1025 and consolidate.',450);return;}
+    if(/daily/.test(t)){
+      freq='Daily';G.schedule={v:schedStr(),tag:'you'};renderDraft('Schedule');
+      await S.say('Done — back to daily.',400);return;}
+    if(/lite|1026/.test(t)&&!/1025/.test(t)){
+      G.template={v:'GL1026 - Global Daily Unbilled Lite',tag:'you',why:'You asked for Lite — same data, ~30% smaller files.'};renderDraft('Template');
+      await S.say('Done — draft updated.',400);return;}
+    if(/1025|standard template/.test(t)){
+      G.template={v:'GL1025 - Global Daily Unbilled',tag:'rec',why:'Daily + unbilled. Policy rule R-12 — matches 4 of your 5 recent US setups.'};renderDraft('Template');
+      await S.say('Done — back to GL1025.',400);return;}
+    if(/hold/.test(t)){
+      hold='10/15/2026';G.schedule={v:schedStr(),tag:'you'};renderDraft('Schedule');
+      await S.say('Done — files generate but release after the hold lifts.',450);return;}
+    if(/unmask|unmasked|full card|full pan/.test(t)){
+      await S.say('Per policy <b>P-7</b>, card numbers stay masked — that\u2019s not mine to waive. I can do <b>last-4 visible</b> with your approval.',600);
+      S.setChips(['Last-4 visible','Keep fully masked'],'');return;}
+    if(/last.?4/.test(t)){
+      G.data={v:'Last-4 visible, rest masked · sort Country → Currency',tag:'you'};renderDraft('Data');
+      await S.say('Done — draft updated.',400);return;}
+    if(/^(help|what can you do)/.test(t)){
+      await S.say('State the outcome you want; I\u2019ll prepare the draft. Correct anything in plain words — the panel updates live. Say <b>review it</b> when ready.');return;}
+    await S.say('Noted — but I can only change <b>accounts</b>, <b>schedule</b>, <b>template</b>, <b>hold</b> or <b>masking</b> in this mock. Try <i>“actually, make it weekly”</i>.');
+    return;
+  }
+
+  if(phase==='review'){
+    if(/confirm|create|submit|yes|go ahead|do it/.test(t)){
+      phase='done';
+      await S.say('Creating…',700);
+      S.addCard(successCard());
+      await S.say('Setup created. Two things I can do without being asked:',600);
+      S.setChips(['Watch the first delivery','Clone for another client','Done'],'Proactive:');
+      return;
+    }
+    phase='consult';
+    await S.say('No problem — what should change? The draft is still live in the panel.');
+    return;
+  }
+
+  if(phase==='done'){
+    if(/watch/.test(t)){
+      await S.say('<b>Watching ✓</b> — I\u2019ll alert you here if Concur rejects the first file or it doesn\u2019t arrive on schedule.',500);
+      S.setChips(['Clone for another client','Done'],'');return;}
+    if(/clone/.test(t)){
+      await S.say('Which client should I clone this for? Name it and I\u2019ll prepare a draft from this one.',500);return;}
+    await S.say('All set. The draft panel keeps the full configuration if you need it.');
+    return;
+  }
+}
+
+S.onHandle(handle);
+S.say(`Hi — I\u2019m your <b>setup concierge</b>. Tell me the outcome you want; I\u2019ll apply every high-confidence setting from policy rules and your history, and ask only where judgment is genuinely needed.<br><br>Try: <b>I need a daily unbilled file for Jboss Uplift</b>`,800);
+S.setChips(['I need a daily unbilled file for Jboss Uplift'],'Try:');
+}
 </script>
 </body>
 </html>
