@@ -221,8 +221,8 @@ function initV1(){
   const S=Sim('v1');
   const bar=document.getElementById('v1-bar'), slbl=document.getElementById('v1-steplbl');
   const NAMES=['Profile','Template','Accounts','Delivery','Schedule','Data','Review'];
-  const st={step:-1,hist:[],client:'',template:'GL1025 - Global Daily Unbilled',accounts:18,
-            acctNote:'all eligible',delivery:'SFT → Concur (ASCII)',hold:'none',freq:'Daily',
+  const st={step:-1,hist:[],client:'',template:'STD-1001 - Standard Daily Unbilled',accounts:18,
+            acctNote:'all eligible',delivery:'SFTP → ExpenseHub (ASCII)',hold:'none',freq:'Daily',
             masking:'Fully masked',sort:'Country → Currency'};
   function prog(){const n=Math.max(0,Math.min(st.step+1,7));bar.style.width=(n/7*100)+'%';
     slbl.textContent=st.step<0?'':(st.step>=7?'Complete ✓':('Step '+(st.step+1)+' of 7 · '+NAMES[st.step]));}
@@ -232,8 +232,8 @@ function initV1(){
   const BACK=['← Back'];
   function heardBack(t){return /back|previous/.test(t);}
 
-  const FILES=['R661122.AMEX.R1109083.GL1025.099','R661122.AMEX.R1109083.GL1025.098',
-    'R661122_8001109083_GL1025_099_DDATETEST1M68_6SFQ5.pgp','R661122_8001109083_GL1025_098_DDATETEST1M68_6SFQ5.pgp'];
+  const FILES=['C881244.CLIENT.R4409021.STD1001.099','C881244.CLIENT.R4409021.STD1001.098',
+    'C881244_7004409021_STD1001_099_PGP0001A2B3C.pgp','C881244_7004409021_STD1001_098_PGP0001A2B3C.pgp'];
   const cp=t=>` <button class="copybtn" onclick="navigator.clipboard.writeText('${t}')">copy</button>`;
   function reviewCard(){
     return `<h4>Review — step 7 of 7</h4>
@@ -251,32 +251,32 @@ function initV1(){
     <div class="prow"><div class="k">Accounts</div><div class="v">${st.accounts} ${st.acctNote}</div></div>
     <div style="margin-top:8px;font-size:13px"><b>Files that will generate</b><br>
     ${FILES.map(f=>`<span style="font-family:monospace">${f}</span>${cp(f)}`).join('<br>')}</div>
-    <div class="callout ok"><b>What happens next</b>Files generate ${st.freq.toLowerCase()} and land via SFT for Concur. First file arrives the next business day after 10/01/2026.</div>`;
+    <div class="callout ok"><b>What happens next</b>Files generate ${st.freq.toLowerCase()} and land via SFTP for ExpenseHub. First file arrives the next business day after 10/01/2026.</div>`;
   }
 
   const STEPS=[
    {ask(){S.say(`I\u2019ll walk you through this <b>step by step — 7 quick steps</b>. Most answers are pre-filled from your existing setups; you can go back anytime.<br><br><b>Step 1 · Profile</b> — who is this setup for?`);
-      S.setChips(['Jboss Uplift (780943)'],'');},
+      S.setChips(['Acme Corp (610045)'],'');},
     on(t){if(heardBack(t)){S.say('This is the first step — nothing to go back to.');return;}
-      if(/jboss|780943|uplift/.test(t)){st.client='jboss Uplift_Client · 780943 · Active, USA';
+      if(/acme|610045|corp/.test(t)){st.client='Acme Corp_Client · 610045 · Active, USA';
         S.status('<b>✓</b> Resolved — active profile, USA. Skipped 1 cancelled lookalike automatically.');go(1);}
-      else S.say('I couldn\u2019t find that profile. Try <b>Jboss Uplift</b>.');}},
-   {ask(){S.say(`<b>Step 2 · Template</b> — I recommend <b>GL1025 · Global Daily Unbilled</b>.<br><span style="color:var(--muted)">Why: daily cadence + unbilled data — and it\u2019s what 4 of your 5 recent US setups use.</span>`);
-      S.setChips(['Use GL1025','Use GL1026 Lite','Show all 20'].concat(BACK),'');},
+      else S.say('I couldn\u2019t find that profile. Try <b>Acme Corp</b>.');}},
+   {ask(){S.say(`<b>Step 2 · Template</b> — I recommend <b>STD-1001 · Global Daily Unbilled</b>.<br><span style="color:var(--muted)">Why: daily cadence + unbilled data — and it\u2019s what 4 of your 5 recent US setups use.</span>`);
+      S.setChips(['Use STD-1001','Use STD-1002 Lite','Show all 20'].concat(BACK),'');},
     on(t){if(heardBack(t)){backTo();return;}
-      if(/1026|lite/.test(t))st.template='GL1026 - Global Daily Unbilled Lite';
-      else if(/all 20|show all|list/.test(t)){S.say('The 20 templates boil down to 3 families: <b>Global daily</b> (GL1025), <b>Global daily lite</b> (GL1026), <b>Regional</b> (GM1025). For unbilled + global, GL1025 is the one — stick with it?');S.setChips(['Use GL1025','Use GL1026 Lite'].concat(BACK),'');return;}
-      else st.template='GL1025 - Global Daily Unbilled';
+      if(/1002|lite/.test(t))st.template='STD-1002 - Standard Daily Unbilled Lite';
+      else if(/all 20|show all|list/.test(t)){S.say('The 20 templates boil down to 3 families: <b>Global daily</b> (STD-1001), <b>Global daily lite</b> (STD-1002), <b>Regional</b> (STD-2001). For unbilled + global, STD-1001 is the one — stick with it?');S.setChips(['Use STD-1001','Use STD-1002 Lite'].concat(BACK),'');return;}
+      else st.template='STD-1001 - Standard Daily Unbilled';
       S.status('<b>✓</b> Template: <b>'+st.template+'</b>');go(2);}},
    {ask(){S.say(`<b>Step 3 · Accounts</b> — add control accounts. Paste IDs, or reuse the 21 from your last upload and I\u2019ll validate instantly.`);
       S.setChips(['Use last upload (21 accounts)'].concat(BACK),'');},
     on:async function(t){if(heardBack(t)){backTo();return;}
       if(/last upload|21|upload|use/.test(t)){
-        await S.status('Validating 21 accounts against recipient 780943…',700);
+        await S.status('Validating 21 accounts against recipient 610045…',700);
         S.addMsg(`<b>18 added ✓</b> · 3 failed — here\u2019s exactly why:<br>
           · <span style="font-family:monospace">…4417</span> — inactive account<br>
           · <span style="font-family:monospace">…4423</span> — duplicate of an existing row<br>
-          · <span style="font-family:monospace">…4431</span> — not linked to recipient 780943<br>
+          · <span style="font-family:monospace">…4431</span> — not linked to recipient 610045<br>
           <span style="color:var(--muted);font-size:13px">Full numbers stay masked — only last-4 shown.</span>`,'bot');
         S.setChips(['Continue with 18','I\u2019ll fix the file'].concat(BACK),'');this._awaitFix=true;return;}
       if(this._awaitFix){
@@ -287,11 +287,11 @@ function initV1(){
           S.status('<b>✓</b> Accounts: <b>18 eligible</b>');go(3);return;}
       }
       S.say('Paste the account IDs, or tap <b>Use last upload</b> and I\u2019ll validate them right here.');}},
-   {ask(){S.say(`<b>Step 4 · Delivery</b> — pre-filled from your existing configuration:<br><b>${st.delivery}</b><br><span style="color:var(--muted)">ASCII · SFT · Concur — the standard for this destination.</span>`);
+   {ask(){S.say(`<b>Step 4 · Delivery</b> — pre-filled from your existing configuration:<br><b>${st.delivery}</b><br><span style="color:var(--muted)">ASCII · SFTP · ExpenseHub — the standard for this destination.</span>`);
       S.setChips(['Keep as is','Change delivery'].concat(BACK),'');},
     on(t){if(heardBack(t)){backTo();return;}
-      if(/change/.test(t)){S.say('What should delivery be instead? e.g. <i>“deliver via email”</i>. (In this mock I\u2019ll keep SFT → Concur and note your preference.)');
-        S.setChips(['Keep SFT → Concur'].concat(BACK),'');return;}
+      if(/change/.test(t)){S.say('What should delivery be instead? e.g. <i>“deliver via email”</i>. (In this mock I\u2019ll keep SFTP → ExpenseHub and note your preference.)');
+        S.setChips(['Keep SFTP → ExpenseHub'].concat(BACK),'');return;}
       S.status('<b>✓</b> Delivery: <b>'+st.delivery+'</b>');go(4);}},
    {ask(){S.say(`<b>Step 5 · Schedule</b> — <b>Daily</b> from 10/01/2026, <b>ongoing</b> (no end date).<br><span style="color:var(--muted)">Want the files held before first release?</span>`);
       S.setChips(['No hold','Hold until Oct 15'].concat(BACK),'');},
@@ -300,7 +300,7 @@ function initV1(){
       else if(/weekly/.test(t)){st.freq='Weekly';}
       else if(/monthly/.test(t)){st.freq='Monthly';}
       S.status('<b>✓</b> Schedule: <b>'+st.freq+'</b> from 10/01/2026, ongoing'+(st.hold!=='none'?' · hold until '+st.hold:''));go(5);}},
-   {ask(){S.say(`<b>Step 6 · Data</b> — standard for Concur, pre-filled:<br><b>${st.masking}</b> card numbers · sort ${st.sort} · no compression · consolidate by process date.`);
+   {ask(){S.say(`<b>Step 6 · Data</b> — standard for ExpenseHub, pre-filled:<br><b>${st.masking}</b> card numbers · sort ${st.sort} · no compression · consolidate by process date.`);
       S.setChips(['Looks good','Change masking'].concat(BACK),'');},
     on(t){if(heardBack(t)){backTo();return;}
       if(/change masking|unmask|last-4|last 4/.test(t)){
@@ -336,11 +336,11 @@ const chat=document.getElementById('v2-chat'), chipsEl=document.getElementById('
 const readyBar=document.getElementById('v2-readyBar'), readyLbl=document.getElementById('v2-readyLbl');
 
 /* Draft state — everything the agent has resolved so far */
-const D={goal:null,client:'jboss Uplift_Client',rid:'780943',market:'USA',
-  template:'GL1025 - Global Daily Unbilled',templateWhy:'Daily cadence + unbilled data — and it\u2019s what 4 of your 5 recent US setups use.',
-  templateAlt:'GL1026 - Global Daily Unbilled Lite',
+const D={goal:null,client:'Acme Corp_Client',rid:'610045',market:'USA',
+  template:'STD-1001 - Standard Daily Unbilled',templateWhy:'Daily cadence + unbilled data — and it\u2019s what 4 of your 5 recent US setups use.',
+  templateAlt:'STD-1002 - Standard Daily Unbilled Lite',
   accounts:18,accountScope:'all eligible accounts',
-  frequency:'Daily',delivery:'SFT → Concur (ASCII)',hold:'none',
+  frequency:'Daily',delivery:'SFTP → ExpenseHub (ASCII)',hold:'none',
   masking:'Card numbers fully masked',sorting:'Country → Currency',
   readiness:0,note:null};
 let phase='greet'; // greet -> investigate -> consult -> done
@@ -381,8 +381,8 @@ function proposalCard(){
   ${D.note?`<div class="callout warn"><b>Note</b>${D.note}</div>`:''}`;
 }
 function successCard(){
-  const files=['R661122.AMEX.R1109083.GL1025.099','R661122.AMEX.R1109083.GL1025.098',
-    'R661122_8001109083_GL1025_099_DDATETEST1M68_6SFQ5.pgp','R661122_8001109083_GL1025_098_DDATETEST1M68_6SFQ5.pgp'];
+  const files=['C881244.CLIENT.R4409021.STD1001.099','C881244.CLIENT.R4409021.STD1001.098',
+    'C881244_7004409021_STD1001_099_PGP0001A2B3C.pgp','C881244_7004409021_STD1001_098_PGP0001A2B3C.pgp'];
   const cp=t=>` <button class="copybtn" onclick="navigator.clipboard.writeText('${t}')">copy</button>`;
   return `<h4 style="color:var(--ok)">✓ Setup created</h4>
    <div class="prow"><div class="k">Client</div><div class="v"><b>${D.client}</b> · ${D.rid}</div></div>
@@ -391,7 +391,7 @@ function successCard(){
    <div class="prow"><div class="k">Schedule</div><div class="v">${D.frequency} · ongoing${D.hold!=='none'?' · hold until '+D.hold:''}</div></div>
    <div style="margin-top:8px;font-size:13px"><b>Files that will generate</b><br>
    ${files.map(f=>`<span style="font-family:monospace">${f}</span>${cp(f)}`).join('<br>')}</div>
-   <div class="callout ok"><b>What happens next</b>Files generate ${D.frequency.toLowerCase().split(' ')[0]} and land via SFT for Concur. First file arrives the next business day after 10/01/2026.</div>`;
+   <div class="callout ok"><b>What happens next</b>Files generate ${D.frequency.toLowerCase().split(' ')[0]} and land via SFTP for ExpenseHub. First file arrives the next business day after 10/01/2026.</div>`;
 }
 
 async function investigate(goal){
@@ -399,9 +399,9 @@ async function investigate(goal){
   setReady(12,'Investigating your request…');
   await say('Got it — give me a moment to look into this.',500);
   const unbilled=/unbilled/.test(goal), monthly=/monthly/.test(goal);
-  if(monthly&&!/unbilled/.test(goal)){D.template='GL1022 - Global Monthly Billed';D.frequency='Monthly';
+  if(monthly&&!/unbilled/.test(goal)){D.template='STD-1003 - Standard Monthly Billed';D.frequency='Monthly';
     D.templateWhy='Monthly cadence + billed data.';}
-  await status('<b>✓</b> Resolved client: <b>jboss Uplift_Client (780943)</b> — active, USA <span class="conf high">auto-applied</span>');
+  await status('<b>✓</b> Resolved client: <b>Acme Corp_Client (610045)</b> — active, USA <span class="conf high">auto-applied</span>');
   await status('<b>✓</b> Matched template: <b>'+D.template+'</b> (1 alternative considered) <span class="conf high">auto-applied</span>');
   await status('<b>✓</b> Validated <b>18 eligible accounts</b> against this recipient <span class="conf low">your call</span>');
   await status('<b>✓</b> Pulled delivery &amp; data preferences from your existing configuration <span class="conf high">auto-applied</span>');
@@ -424,7 +424,7 @@ async function adapt(deltaHtml,readyLabel){
 async function handle(raw){
   const t=raw.toLowerCase().trim();
   if(/^(help|what can you do)/.test(t)){
-    await say(`Tell me what you need in plain words — e.g. <b>I need a daily unbilled file for Jboss Uplift</b>.<br><br>
+    await say(`Tell me what you need in plain words — e.g. <b>I need a daily unbilled file for Acme Corp</b>.<br><br>
     I\u2019ll investigate and propose a full configuration. Then just react: <i>“only US accounts”</i>, <i>“actually make it weekly”</i>, <i>“use the lite template”</i> — I adapt in place, nothing restarts. When it looks right, say <b>submit</b>.`);
     return;
   }
@@ -453,16 +453,16 @@ async function handle(raw){
   }
   if(/weekly/.test(t)){
     D.frequency='Weekly (consolidated)';D.readiness=90;
-    D.note='GL1025 generates daily, so I\u2019ll consolidate each week into a single Monday release.';
+    D.note='STD-1001 generates daily, so I\u2019ll consolidate each week into a single Monday release.';
     await say('Done — switched to a weekly rhythm.',500);
     await adapt('<b>Updated:</b> schedule → <b>weekly</b>. One note: the template generates daily, so I\u2019ll consolidate each week into a single Monday file.');
     return;
   }
   if(/monthly/.test(t)){
     D.frequency='Monthly (consolidated)';D.readiness=90;
-    D.note='No monthly unbilled template exists, so I\u2019ll keep GL1025 and consolidate into one monthly file.';
+    D.note='No monthly unbilled template exists, so I\u2019ll keep STD-1001 and consolidate into one monthly file.';
     await say('Done — switched to monthly.',500);
-    await adapt('<b>Updated:</b> schedule → <b>monthly</b>. There\u2019s no monthly unbilled template, so I\u2019ll keep GL1025 and consolidate into one file per month.');
+    await adapt('<b>Updated:</b> schedule → <b>monthly</b>. There\u2019s no monthly unbilled template, so I\u2019ll keep STD-1001 and consolidate into one file per month.');
     return;
   }
   if(/daily/.test(t)){
@@ -471,20 +471,20 @@ async function handle(raw){
     await adapt('<b>Updated:</b> schedule → <b>daily</b>.');
     return;
   }
-  if(/lite|1026/.test(t)&&!/1025/.test(t)){
-    D.template='GL1026 - Global Daily Unbilled Lite';
+  if(/lite|1002/.test(t)&&!/1025/.test(t)){
+    D.template='STD-1002 - Standard Daily Unbilled Lite';
     D.templateWhy='You asked for Lite — same daily unbilled data, ~30% smaller files.';
-    D.templateAlt='GL1025 - Global Daily Unbilled';D.readiness=90;
+    D.templateAlt='STD-1001 - Standard Daily Unbilled';D.readiness=90;
     await say('Switched to the Lite template.',500);
-    await adapt('<b>Updated:</b> template → <b>GL1026 Lite</b>. Same data, drops the extended detail columns.');
+    await adapt('<b>Updated:</b> template → <b>STD-1002 Lite</b>. Same data, drops the extended detail columns.');
     return;
   }
-  if(/1025|standard template/.test(t)){
-    D.template='GL1025 - Global Daily Unbilled';
+  if(/1001|standard template/.test(t)){
+    D.template='STD-1001 - Standard Daily Unbilled';
     D.templateWhy='Daily cadence + unbilled data — and it\u2019s what 4 of your 5 recent US setups use.';
-    D.templateAlt='GL1026 - Global Daily Unbilled Lite';D.readiness=90;
+    D.templateAlt='STD-1002 - Standard Daily Unbilled Lite';D.readiness=90;
     await say('Switched back to the standard template.',500);
-    await adapt('<b>Updated:</b> template → <b>GL1025</b>.');
+    await adapt('<b>Updated:</b> template → <b>STD-1001</b>.');
     return;
   }
   if(/hold/.test(t)){
@@ -511,7 +511,7 @@ async function handle(raw){
     else await say('Sort by what first — Country, Currency, or Merchant?');
     return;
   }
-  if(/deliver|sft|concur|email/.test(t)){
+  if(/deliver|sftp|expensehub|email/.test(t)){
     await say('Delivery is currently <b>'+D.delivery+'</b> from your existing configuration. What should it be instead — e.g. <i>“deliver via email”</i>?');
     return;
   }
@@ -524,8 +524,8 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('v
 
 setReady(4,'Tell me what you need — I\u2019ll figure out the configuration with you.');
 (async()=>{
-  await say(`Hi — I\u2019m your <b>setup consultant</b>. Don\u2019t walk through a form; just tell me the outcome you want.<br><br>Try: <b>I need a daily unbilled file for Jboss Uplift</b>`,800);
-  chips(['I need a daily unbilled file for Jboss Uplift'],'Try:');
+  await say(`Hi — I\u2019m your <b>setup consultant</b>. Don\u2019t walk through a form; just tell me the outcome you want.<br><br>Try: <b>I need a daily unbilled file for Acme Corp</b>`,800);
+  chips(['I need a daily unbilled file for Acme Corp'],'Try:');
 })();
 }
 </script>
@@ -535,16 +535,16 @@ function initV3(){
 const S=Sim('v3');
 const TAGLBL={auto:'auto-applied',rec:'recommended',call:'your call',you:'you changed'};
 const G={
-  client:{v:'jboss Uplift_Client · 780943 · Active, USA',tag:'auto'},
-  template:{v:'GL1025 - Global Daily Unbilled',tag:'rec',why:'Daily + unbilled. Policy rule R-12 — matches 4 of your 5 recent US setups.'},
+  client:{v:'Acme Corp_Client · 610045 · Active, USA',tag:'auto'},
+  template:{v:'STD-1001 - Standard Daily Unbilled',tag:'rec',why:'Daily + unbilled. Policy rule R-12 — matches 4 of your 5 recent US setups.'},
   accounts:{v:'18 eligible accounts',tag:'call'},
-  delivery:{v:'SFT → Concur (ASCII)',tag:'auto'},
+  delivery:{v:'SFTP → ExpenseHub (ASCII)',tag:'auto'},
   schedule:{v:'Daily · from 10/01/2026 · ongoing',tag:'auto'},
   data:{v:'Fully masked · sort Country → Currency',tag:'auto'}
 };
 const ASSUMPTIONS=[
   'Used the active profile — skipped 1 cancelled lookalike automatically',
-  'Applied your standard Concur delivery (ASCII · SFT) from existing setups',
+  'Applied your standard ExpenseHub delivery (ASCII · SFTP) from existing setups',
   'Set no end date (ongoing) — your usual pattern',
   'Excluded 3 accounts that failed validation (reasons logged)'
 ];
@@ -572,8 +572,8 @@ function reviewCard(){
   <div class="callout warn"><b>Assumptions I made</b><ul style="margin:6px 0 0;padding-left:18px">${ASSUMPTIONS.map(a=>`<li>${a}</li>`).join('')}</ul></div>`;
 }
 function successCard(){
-  const files=['R661122.AMEX.R1109083.GL1025.099','R661122.AMEX.R1109083.GL1025.098',
-    'R661122_8001109083_GL1025_099_DDATETEST1M68_6SFQ5.pgp','R661122_8001109083_GL1025_098_DDATETEST1M68_6SFQ5.pgp'];
+  const files=['C881244.CLIENT.R4409021.STD1001.099','C881244.CLIENT.R4409021.STD1001.098',
+    'C881244_7004409021_STD1001_099_PGP0001A2B3C.pgp','C881244_7004409021_STD1001_098_PGP0001A2B3C.pgp'];
   const cp=t=>` <button class="copybtn" onclick="navigator.clipboard.writeText('${t}')">copy</button>`;
   return `<h4 style="color:var(--ok)">✓ Setup created</h4>
    <div class="prow"><div class="k">Template</div><div class="v"><b>${G.template.v}</b></div></div>
@@ -586,8 +586,8 @@ function successCard(){
 async function investigate(){
   phase='investigate';
   await S.say('On it — checking policy rules, your existing setups, and eligible accounts before I ask you anything.',500);
-  await S.status('<b>✓</b> Profile resolved: <b>jboss Uplift_Client (780943)</b> — active, USA <span class="conf high">auto-applied</span>');
-  await S.status('<b>✓</b> Template matched by rule R-12: <b>GL1025</b> <span class="conf high">auto-applied</span>');
+  await S.status('<b>✓</b> Profile resolved: <b>Acme Corp_Client (610045)</b> — active, USA <span class="conf high">auto-applied</span>');
+  await S.status('<b>✓</b> Template matched by rule R-12: <b>STD-1001</b> <span class="conf high">auto-applied</span>');
   await S.status('<b>✓</b> 18 of 21 accounts eligible — scope is a judgment call <span class="conf low">your call</span>');
   await S.status('<b>✓</b> Delivery, schedule &amp; data defaults pulled from your existing setups <span class="conf high">auto-applied</span>');
   renderDraft();
@@ -626,16 +626,16 @@ async function handle(raw){
       S.setChips(['Looks good — review it','Only US accounts'],'');return;}
     if(/monthly/.test(t)){
       freq='Monthly';G.schedule={v:schedStr()+' — one file per month',tag:'you'};renderDraft('Schedule');
-      await S.say('Done — no monthly unbilled template exists, so I\u2019ll keep GL1025 and consolidate.',450);return;}
+      await S.say('Done — no monthly unbilled template exists, so I\u2019ll keep STD-1001 and consolidate.',450);return;}
     if(/daily/.test(t)){
       freq='Daily';G.schedule={v:schedStr(),tag:'you'};renderDraft('Schedule');
       await S.say('Done — back to daily.',400);return;}
-    if(/lite|1026/.test(t)&&!/1025/.test(t)){
-      G.template={v:'GL1026 - Global Daily Unbilled Lite',tag:'you',why:'You asked for Lite — same data, ~30% smaller files.'};renderDraft('Template');
+    if(/lite|1002/.test(t)&&!/1025/.test(t)){
+      G.template={v:'STD-1002 - Standard Daily Unbilled Lite',tag:'you',why:'You asked for Lite — same data, ~30% smaller files.'};renderDraft('Template');
       await S.say('Done — draft updated.',400);return;}
-    if(/1025|standard template/.test(t)){
-      G.template={v:'GL1025 - Global Daily Unbilled',tag:'rec',why:'Daily + unbilled. Policy rule R-12 — matches 4 of your 5 recent US setups.'};renderDraft('Template');
-      await S.say('Done — back to GL1025.',400);return;}
+    if(/1001|standard template/.test(t)){
+      G.template={v:'STD-1001 - Standard Daily Unbilled',tag:'rec',why:'Daily + unbilled. Policy rule R-12 — matches 4 of your 5 recent US setups.'};renderDraft('Template');
+      await S.say('Done — back to STD-1001.',400);return;}
     if(/hold/.test(t)){
       hold='10/15/2026';G.schedule={v:schedStr(),tag:'you'};renderDraft('Schedule');
       await S.say('Done — files generate but release after the hold lifts.',450);return;}
@@ -667,7 +667,7 @@ async function handle(raw){
 
   if(phase==='done'){
     if(/watch/.test(t)){
-      await S.say('<b>Watching ✓</b> — I\u2019ll alert you here if Concur rejects the first file or it doesn\u2019t arrive on schedule.',500);
+      await S.say('<b>Watching ✓</b> — I\u2019ll alert you here if ExpenseHub rejects the first file or it doesn\u2019t arrive on schedule.',500);
       S.setChips(['Clone for another client','Done'],'');return;}
     if(/clone/.test(t)){
       await S.say('Which client should I clone this for? Name it and I\u2019ll prepare a draft from this one.',500);return;}
@@ -677,8 +677,8 @@ async function handle(raw){
 }
 
 S.onHandle(handle);
-S.say(`Hi — I\u2019m your <b>setup concierge</b>. Tell me the outcome you want; I\u2019ll apply every high-confidence setting from policy rules and your history, and ask only where judgment is genuinely needed.<br><br>Try: <b>I need a daily unbilled file for Jboss Uplift</b>`,800);
-S.setChips(['I need a daily unbilled file for Jboss Uplift'],'Try:');
+S.say(`Hi — I\u2019m your <b>setup concierge</b>. Tell me the outcome you want; I\u2019ll apply every high-confidence setting from policy rules and your history, and ask only where judgment is genuinely needed.<br><br>Try: <b>I need a daily unbilled file for Acme Corp</b>`,800);
+S.setChips(['I need a daily unbilled file for Acme Corp'],'Try:');
 }
 </script>
 </body>
